@@ -10,4 +10,9 @@ class ProfessionalController extends Controller
     {
         return view('professional.professionalDashboard');
     }
+
+    public function messages()
+    {
+        return view('professional.messages');
+    }
 }

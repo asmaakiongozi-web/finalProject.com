@@ -385,6 +385,47 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Recent Resources Section -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0" style="color: #0f2c24; font-weight: 600;">
+                                <i class="fas fa-book-open me-2" style="color: #2d7a5c;"></i>Recent Resources
+                            </h5>
+                            <a href="{{ route('resources.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                        </div>
+                        <div class="card-body">
+                            @php
+                                $recentResources = \App\Models\Resource::with('user')->latest()->take(3)->get();
+                            @endphp
+                            @forelse($recentResources as $resource)
+                            <div class="d-flex align-items-center p-3 border-bottom">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-light rounded p-2">
+                                        <i class="fas fa-{{ $resource->type === 'article' ? 'file-alt' : ($resource->type === 'audio' ? 'headphones' : ($resource->type === 'video' ? 'play-circle' : ($resource->type === 'pdf' ? 'file-pdf' : 'link'))) }} text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ $resource->title }}</h6>
+                                    <small class="text-muted">{{ ucfirst($resource->category) }} • {{ ucfirst($resource->type) }} • {{ $resource->created_at->diffForHumans() }}</small>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <a href="{{ route('resources.show', $resource) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                </div>
+                            </div>
+                            @empty
+                            <div class="text-center py-4">
+                                <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                                <h6 class="text-muted">No resources available yet</h6>
+                                <p class="text-muted small">Check back later for new content</p>
+                            </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 

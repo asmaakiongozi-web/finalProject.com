@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DiaryController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ResourceController;
 use Illuminate\Support\Facades\Route;
 
 // Public route
@@ -76,11 +77,33 @@ Route::middleware(['auth', 'user'])->prefix('user')->name('user.')->group(functi
 
 /*
 |--------------------------------------------------------------------------
+| Resource Library Routes
+|--------------------------------------------------------------------------
+*/
+// Public resource viewing (authenticated users)
+Route::middleware(['auth', 'verified'])->prefix('resources')->name('resources.')->group(function () {
+    Route::get('/', [ResourceController::class, 'index'])->name('index');
+    Route::get('/category/{category}', [ResourceController::class, 'category'])->name('category');
+    Route::get('/type/{type}', [ResourceController::class, 'type'])->name('type');
+    Route::get('/{resource}', [ResourceController::class, 'show'])->name('show');
+});
+
+// Resource management (professionals and admins only)
+Route::middleware(['auth', 'verified'])->prefix('resources/manage')->name('resources.')->group(function () {
+    Route::get('/create', [ResourceController::class, 'create'])->name('create');
+    Route::post('/store', [ResourceController::class, 'store'])->name('store');
+    Route::get('/', [ResourceController::class, 'manage'])->name('manage');
+    Route::delete('/{resource}', [ResourceController::class, 'destroy'])->name('destroy');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Professional Routes
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'professional'])->prefix('professional')->name('professional.')->group(function () {
     Route::get('/dashboard', [ProfessionalController::class, 'professionalDashboard'])->name('dashboard');
+    Route::get('/messages', [ProfessionalController::class, 'messages'])->name('messages');
     Route::get('/clients', [ProfessionalController::class, 'clients'])->name('clients'); // example professional route
     // Add more professional routes here
 });

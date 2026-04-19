@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="user-id" content="{{ auth()->check() ? auth()->id() : '' }}">
 
     <title>Community Forum - {{ config('app.name', 'Laravel') }}</title>
 
@@ -346,6 +347,39 @@
             font-size: 0.85rem;
             padding: 0.4rem 0.8rem;
         }
+        .viewer-count {
+            position: relative;
+            display: inline-block;
+            margin-right: 1rem;
+        }
+        .viewer-count i {
+            font-size: 1rem;
+        }
+        .viewer-number {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #2d7a5c;
+            color: white;
+            border-radius: 50%;
+            padding: 0.2rem 0.4rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            min-width: 16px;
+            text-align: center;
+            line-height: 1;
+        }
+        .discussion-toggle {
+            color: #2d7a5c;
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+        .discussion-toggle .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+        .discussion-card.expanded .toggle-icon {
+            transform: rotate(180deg);
+        }
 
         .reply-card {
             border: 1px solid #e8f0ec;
@@ -414,10 +448,18 @@
 </head>
 <body class="font-sans antialiased">
     {{-- Include Sidebar --}}
-    @include('layouts.partials.sidebar')
+    @if(auth()->user()->usertype === 'professional')
+        @include('professional.partials.sidebar')
+    @else
+        @include('layouts.partials.sidebar')
+    @endif
 
     {{-- Include Navbar --}}
-    @include('layouts.partials.navbar')
+    @if(auth()->user()->usertype === 'professional')
+        @include('professional.partials.navbar')
+    @else
+        @include('layouts.partials.navbar')
+    @endif
 
     {{-- Page content --}}
     <main class="main-content">
@@ -553,8 +595,9 @@
     <script>
         (function() {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            const currentUserId = {{ auth()->id() ?? 'null' }};
-            const currentUserIdNum = currentUserId ? parseInt(currentUserId) : null;
+            const userIdStr = document.querySelector('meta[name="user-id"]').getAttribute('content');
+            const currentUserId = userIdStr ? parseInt(userIdStr) : null;
+            const currentUserIdNum = currentUserId;
 
             // Tab switching
             const tabBtns = document.querySelectorAll('.tab-btn');
@@ -697,7 +740,7 @@
                     `;
 
                     const discussionHtml = `
-                        <div class="discussion-card">
+                        <div class="discussion-card" data-id="${discussion.id}" style="cursor: pointer;">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div style="flex: 1;">
                                     <div class="discussion-title">${discussion.title}</div>
@@ -707,12 +750,18 @@
                                         <span class="discussion-category">${discussion.category}</span>
                                     </div>
                                 </div>
+                                <div class="discussion-toggle">
+                                    <i class="fas fa-chevron-down toggle-icon"></i>
+                                </div>
                             </div>
                             <div class="discussion-content">
                                 ${discussion.content}
                             </div>
                             <div class="discussion-stats">
-                                <span><i class="fas fa-eye me-1" style="color: #2d7a5c;"></i>${discussion.views || 0} views</span>
+                                <span class="viewer-count">
+                                    <i class="fas fa-eye" style="color: #2d7a5c;"></i>
+                                    <span class="viewer-number">${discussion.views || 0}</span>
+                                </span>
                                 <span><i class="fas fa-comments me-1" style="color: #2d7a5c;"></i>${replyCount} replies</span>
                             </div>
                             <div class="discussion-actions">
@@ -725,7 +774,7 @@
                                 </button>
                                 ` : ''}
                             </div>
-                            <div class="reply-form" id="reply-form-${discussion.id}">
+                            <div class="reply-form" id="reply-form-${discussion.id}" style="display: none;">
                                 ${repliesHtml}
                                 <form class="reply-form-element" data-discussion-id="${discussion.id}">
                                     <textarea id="replyTextarea-${discussion.id}" class="reply-textarea" name="replyContent" placeholder="Write your response..." required></textarea>
@@ -742,30 +791,90 @@
                     container.innerHTML += discussionHtml;
                 });
 
-                document.querySelectorAll('.delete-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const id = this.getAttribute('data-id');
+                // Use event delegation for better reliability with dynamic content
+                container.addEventListener('click', function(e) {
+                    // Handle discussion card toggle
+                    if (e.target.closest('.discussion-card') && !e.target.closest('button') && !e.target.closest('textarea') && !e.target.closest('form')) {
+                        const card = e.target.closest('.discussion-card');
+                        const discussionId = card.getAttribute('data-id');
+                        const replyForm = document.getElementById(`reply-form-${discussionId}`);
+                        
+                        if (replyForm) {
+                            if (replyForm.style.display === 'none' || replyForm.style.display === '') {
+                                replyForm.style.display = 'block';
+                                card.classList.add('expanded');
+                            } else {
+                                replyForm.style.display = 'none';
+                                card.classList.remove('expanded');
+                            }
+                        }
+                    }
+
+                    // Handle toggle icon click
+                    if (e.target.closest('.discussion-toggle')) {
+                        e.stopPropagation();
+                        const card = e.target.closest('.discussion-card');
+                        const discussionId = card.getAttribute('data-id');
+                        const replyForm = document.getElementById(`reply-form-${discussionId}`);
+                        
+                        if (replyForm) {
+                            if (replyForm.style.display === 'none' || replyForm.style.display === '') {
+                                replyForm.style.display = 'block';
+                                card.classList.add('expanded');
+                            } else {
+                                replyForm.style.display = 'none';
+                                card.classList.remove('expanded');
+                            }
+                        }
+                    }
+
+                    // Handle reply button
+                    if (e.target.closest('.reply-btn')) {
+                        e.stopPropagation();
+                        const btn = e.target.closest('.reply-btn');
+                        const discussionId = btn.getAttribute('data-id');
+                        const replyForm = document.getElementById(`reply-form-${discussionId}`);
+                        const discussionCard = btn.closest('.discussion-card');
+                        
+                        // Show the reply form if it's hidden
+                        if (replyForm && (replyForm.style.display === 'none' || replyForm.style.display === '')) {
+                            replyForm.style.display = 'block';
+                            discussionCard.classList.add('expanded');
+                        }
+                        
+                        const textarea = document.getElementById(`replyTextarea-${discussionId}`);
+                        if (textarea) {
+                            setTimeout(() => textarea.focus(), 100); // Small delay to ensure form is visible
+                        }
+                    }
+
+                    // Handle delete button
+                    if (e.target.closest('.delete-btn')) {
+                        const btn = e.target.closest('.delete-btn');
+                        const id = btn.getAttribute('data-id');
                         if (confirm('Are you sure you want to delete this discussion?')) {
                             deleteDiscussion(id);
                         }
-                    });
-                });
+                    }
 
-                document.querySelectorAll('.delete-reply-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const discussionId = this.getAttribute('data-discussion-id');
-                        const replyId = this.getAttribute('data-reply-id');
+                    // Handle delete reply button
+                    if (e.target.closest('.delete-reply-btn')) {
+                        const btn = e.target.closest('.delete-reply-btn');
+                        const discussionId = btn.getAttribute('data-discussion-id');
+                        const replyId = btn.getAttribute('data-reply-id');
                         if (confirm('Delete this reply?')) {
                             deleteReply(discussionId, replyId);
                         }
-                    });
+                    }
                 });
 
-                document.querySelectorAll('.reply-form-element').forEach(form => {
-                    form.addEventListener('submit', function(e) {
+                // Handle form submissions with event delegation
+                container.addEventListener('submit', function(e) {
+                    if (e.target.classList.contains('reply-form-element')) {
                         e.preventDefault();
-                        const discussionId = this.getAttribute('data-discussion-id');
-                        const content = this.querySelector('[name="replyContent"]').value;
+                        const form = e.target;
+                        const discussionId = form.getAttribute('data-discussion-id');
+                        const content = form.querySelector('[name="replyContent"]').value;
 
                         if (!content.trim()) {
                             alert('Please add a reply before posting.');
@@ -773,17 +882,7 @@
                         }
 
                         postReply(discussionId, content);
-                    });
-                });
-
-                document.querySelectorAll('.reply-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const discussionId = this.getAttribute('data-id');
-                        const textarea = document.getElementById(`replyTextarea-${discussionId}`);
-                        if (textarea) {
-                            textarea.focus();
-                        }
-                    });
+                    }
                 });
             }
 
