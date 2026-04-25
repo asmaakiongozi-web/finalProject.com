@@ -1,260 +1,7 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="user-id" content="{{ auth()->check() ? auth()->id() : '' }}">
-    <meta name="is-admin" content="{{ auth()->check() && auth()->user()->usertype === 'admin' ? '1' : '0' }}">
+@extends('layouts.admin')
 
-    <title>Community Forum - {{ config('app.name', 'Laravel') }}</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-
-    <!-- Bootstrap & Font Awesome -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+@section('content')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-            background-color: #f8fafc;
-        }
-
-        .sidebar-fixed {
-            position: fixed;
-            left: 0;
-            top: 0;
-            height: 100vh;
-            z-index: 1020;
-        }
-
-        .navbar-fixed {
-            position: fixed;
-            top: 0;
-            left: 280px;
-            right: 0;
-            z-index: 1030;
-            width: calc(100% - 280px);
-        }
-
-        .main-content {
-            position: relative;
-            left: 280px;
-            width: calc(100% - 280px);
-            margin-top: 64px;
-            padding: 1.5rem;
-            min-height: calc(100vh - 64px);
-        }
-        .main-content .container-fluid {
-            padding-left: 0;
-            padding-right: 0;
-            margin-left: 0;
-            margin-right: 0;
-        }
-        .main-content .row {
-            margin-left: 0;
-            margin-right: 0;
-        }
-        .main-content .col-12 {
-            padding-left: 0;
-            padding-right: 0;
-        }
-
-        /* SIDEBAR STYLES */
-        .sidebar-green {
-            width: 280px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: #0f2c24;
-            background: linear-gradient(180deg, #0f2c24 0%, #0a241d 100%);
-            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.05);
-            border-right: 1px solid #2c5443;
-            overflow: hidden;
-        }
-
-        .sidebar-green::-webkit-scrollbar {
-            width: 4px;
-        }
-        .sidebar-green::-webkit-scrollbar-track {
-            background: #1e3f34;
-        }
-        .sidebar-green::-webkit-scrollbar-thumb {
-            background: #5f9e82;
-            border-radius: 10px;
-        }
-
-        .sidebar-inner {
-            padding: 1.8rem 1rem 2rem 1rem;
-            display: flex;
-            flex-direction: column;
-            flex: 1 1 auto;
-            min-height: 0;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        .sidebar-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 0 0.75rem 1.25rem 0.75rem;
-            margin-bottom: 1.8rem;
-            border-bottom: 1px solid rgba(255,255,255,0.12);
-        }
-        .sidebar-brand i {
-            font-size: 1.9rem;
-            color: #c0e0d2;
-        }
-        .sidebar-brand span {
-            font-size: 1.35rem;
-            font-weight: 600;
-            letter-spacing: -0.2px;
-            color: white;
-        }
-        .sidebar-brand small {
-            font-size: 0.7rem;
-            font-weight: 400;
-            color: #bcd9cd;
-            display: block;
-            margin-top: 2px;
-        }
-
-        .nav-green {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-            list-style: none;
-            padding-left: 0;
-            margin-bottom: 1.5rem;
-        }
-
-        .nav-green .nav-item {
-            list-style: none;
-        }
-
-        .nav-green .nav-link-custom {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 0.7rem 1rem;
-            border-radius: 12px;
-            font-weight: 500;
-            font-size: 0.9rem;
-            color: #e2efea;
-            text-decoration: none;
-            transition: background 0.2s ease, color 0.2s;
-            background: transparent;
-            border: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            line-height: 1.4;
-        }
-
-        .nav-green .nav-link-custom i {
-            width: 24px;
-            font-size: 1.15rem;
-            text-align: center;
-            color: #c0dfd0;
-        }
-
-        .nav-green .nav-link-custom .dropdown-icon {
-            margin-left: auto;
-            font-size: 0.7rem;
-            transition: transform 0.2s;
-        }
-
-        .nav-green .nav-link-custom:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
-        }
-        .nav-green .nav-link-custom:hover i {
-            color: white;
-        }
-
-        .nav-green .nav-link-custom.active {
-            background: #2d7a5c;
-            color: white;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        .nav-green .nav-link-custom.active i {
-            color: white;
-        }
-
-        .dropdown-menu-custom {
-            list-style: none;
-            padding-left: 2.6rem;
-            margin-top: 0.3rem;
-            margin-bottom: 0.2rem;
-            display: none;
-            border-left: 2px solid #3f8268;
-            margin-left: 1rem;
-        }
-        .dropdown-menu-custom.show {
-            display: block;
-        }
-
-        .dropdown-menu-custom li {
-            margin-bottom: 0.3rem;
-        }
-
-        .dropdown-menu-custom .dropdown-link {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 0.5rem 0.9rem;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            font-weight: 450;
-            color: #d2e6dd;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        .dropdown-menu-custom .dropdown-link i {
-            width: 20px;
-            font-size: 0.8rem;
-            color: #b1dbc9;
-        }
-        .dropdown-menu-custom .dropdown-link:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            padding-left: 1.1rem;
-        }
-
-        .nav-divider {
-            height: 1px;
-            background: rgba(255,255,255,0.08);
-            margin: 0.8rem 0.75rem;
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            padding-top: 1.5rem;
-            font-size: 0.7rem;
-            text-align: center;
-            color: #96bbaa;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 0.5rem;
-        }
-
-        /* Community content styles */
         .card {
             border: none;
             border-radius: 12px;
@@ -465,68 +212,9 @@
             margin-bottom: 1rem;
         }
     </style>
-</head>
-<body class="font-sans antialiased">
-    {{-- Include Sidebar --}}
-    @if(auth()->user()->usertype === 'admin')
-        @include('admin.partials.sidebar')
-    @elseif(auth()->user()->usertype === 'professional')
-        @include('professional.partials.sidebar')
-    @else
-        @include('layouts.partials.sidebar')
-    @endif
 
-    {{-- Include Navbar --}}
-    @if(auth()->user()->usertype === 'admin')
-        @include('admin.partials.navbar')
-        <style>
-            .sidebar-green {
-                background: #0a3b2f !important;
-                background: linear-gradient(145deg, #0f4c3a 0%, #0a3b2f 100%) !important;
-                box-shadow: -8px 0 20px rgba(0, 0, 0, 0.08) !important;
-                border-right: 1px solid #2a6e4f !important;
-            }
-
-            .sidebar-green .sidebar-inner {
-                overflow-y: auto !important;
-            }
-
-            .sidebar-green .sidebar-brand i {
-                color: #c8f0e1 !important;
-            }
-
-            .sidebar-green .sidebar-brand span {
-                color: white !important;
-            }
-
-            .sidebar-green .sidebar-brand small {
-                color: #b9dfce !important;
-            }
-
-            .nav-green .nav-link-custom {
-                color: #e2f0ea !important;
-            }
-
-            .nav-green .nav-link-custom:hover,
-            .nav-green .nav-link-custom.active {
-                background: rgba(255, 255, 255, 0.12) !important;
-                color: white !important;
-            }
-
-            .dropdown-menu-custom {
-                border-left-color: #4cae8c !important;
-            }
-        </style>
-    @elseif(auth()->user()->usertype === 'professional')
-        @include('professional.partials.navbar')
-    @else
-        @include('layouts.partials.navbar')
-    @endif
-
-    {{-- Page content --}}
-    <main class="main-content">
+    <div class="community-area">
         <div class="container-fluid">
-            <!-- Page Header -->
             <div class="row mb-4">
                 <div class="col-12">
                     <h3 style="color: #0f2c24; font-weight: 600;">
@@ -535,7 +223,6 @@
                 </div>
             </div>
 
-            <!-- Tab Navigation -->
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="tabs-nav">
@@ -555,7 +242,6 @@
                 </div>
             </div>
 
-            <!-- Create New Discussion Tab -->
             <div id="new-post-tab" class="tab-content active">
                 <div class="row">
                     <div class="col-12">
@@ -609,7 +295,6 @@
                 </div>
             </div>
 
-            <!-- Today's Discussions Tab -->
             <div id="today-tab" class="tab-content" style="display: none;">
                 <div class="row">
                     <div class="col-12">
@@ -623,7 +308,6 @@
                 </div>
             </div>
 
-            <!-- Recent Discussions Tab -->
             <div id="recent-tab" class="tab-content" style="display: none;">
                 <div class="row">
                     <div class="col-12">
@@ -637,7 +321,6 @@
                 </div>
             </div>
 
-            <!-- My Posts Tab -->
             <div id="my-posts-tab" class="tab-content" style="display: none;">
                 <div class="row">
                     <div class="col-12">
@@ -651,54 +334,44 @@
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
-    <!-- JavaScript -->
     <script>
         (function() {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const userIdStr = document.querySelector('meta[name="user-id"]').getAttribute('content');
             const currentUserId = userIdStr ? parseInt(userIdStr) : null;
             const currentUserIdNum = currentUserId;
-            const currentUserIsAdmin = document.querySelector('meta[name="is-admin"]').content === '1';
+            const currentUserIsAdmin = true;
 
-            // Tab switching
             const tabBtns = document.querySelectorAll('.tab-btn');
             const tabContents = document.querySelectorAll('.tab-content');
 
             tabBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
                     const tabName = this.getAttribute('data-tab');
-                    
                     tabBtns.forEach(b => b.classList.remove('active'));
                     tabContents.forEach(t => t.style.display = 'none');
-                    
                     this.classList.add('active');
                     document.getElementById(tabName + '-tab').style.display = 'block';
-                    
-                    // Load appropriate data when switching tabs
                     if (tabName === 'today') loadTodayDiscussions();
                     if (tabName === 'recent') loadRecentDiscussions();
                     if (tabName === 'my-posts') loadMyPosts();
                 });
             });
 
-            // Form submission
             const discussionForm = document.getElementById('discussionForm');
             const postMessage = document.getElementById('postMessage');
 
             discussionForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-
                 const title = this.querySelector('[name="title"]').value;
                 const content = this.querySelector('[name="content"]').value;
                 const category = this.querySelector('[name="category"]').value;
-
                 if (!title.trim() || !content.trim()) {
                     alert('Please fill in all required fields.');
                     return;
                 }
-
                 fetch('{{ route("community.store") }}', {
                     method: 'POST',
                     headers: {
@@ -727,7 +400,6 @@
                 });
             });
 
-            // Load today's discussions
             function loadTodayDiscussions() {
                 fetch('{{ route("community.today") }}')
                     .then(response => response.json())
@@ -735,7 +407,6 @@
                     .catch(error => console.error('Error:', error));
             }
 
-            // Load recent discussions
             function loadRecentDiscussions() {
                 fetch('{{ route("community.recent") }}')
                     .then(response => response.json())
@@ -743,7 +414,6 @@
                     .catch(error => console.error('Error:', error));
             }
 
-            // Load my posts
             function loadMyPosts() {
                 fetch('{{ route("community.myPosts") }}')
                     .then(response => response.json())
@@ -751,10 +421,8 @@
                     .catch(error => console.error('Error:', error));
             }
 
-            // Display discussions
             function displayDiscussions(discussions, containerId) {
                 const container = document.getElementById(containerId);
-
                 if (discussions.length === 0) {
                     const isEmpty = containerId === 'todayList' ? 'No discussions posted today. Be the first to start a conversation!' :
                                    containerId === 'recentList' ? 'No discussions yet. Create one to get started!' :
@@ -771,18 +439,16 @@
                 container.innerHTML = '';
                 discussions.forEach(discussion => {
                     const date = new Date(discussion.timestamp);
-                    const dateStr = date.toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'short', 
-                        day: 'numeric' 
+                    const dateStr = date.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
                     });
-                    const timeStr = date.toLocaleTimeString('en-US', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
+                    const timeStr = date.toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit'
                     });
-
                     const replyCount = discussion.replies ? discussion.replies.length : 0;
-
                     const repliesHtml = (discussion.replies && discussion.replies.length) ? discussion.replies.map(reply => `
                         <div class="reply-card">
                             <div class="reply-header">
@@ -854,102 +520,88 @@
                     container.innerHTML += discussionHtml;
                 });
 
-                // Use event delegation for better reliability with dynamic content
-                container.addEventListener('click', function(e) {
-                    // Handle discussion card toggle
-                    if (e.target.closest('.discussion-card') && !e.target.closest('button') && !e.target.closest('textarea') && !e.target.closest('form')) {
-                        const card = e.target.closest('.discussion-card');
-                        const discussionId = card.getAttribute('data-id');
-                        const replyForm = document.getElementById(`reply-form-${discussionId}`);
-                        
-                        if (replyForm) {
-                            if (replyForm.style.display === 'none' || replyForm.style.display === '') {
-                                replyForm.style.display = 'block';
-                                card.classList.add('expanded');
-                            } else {
-                                replyForm.style.display = 'none';
-                                card.classList.remove('expanded');
+                const existingHandler = container._discussionHandler;
+                if (!existingHandler) {
+                    const handler = function(e) {
+                        if (e.target.closest('.discussion-card') && !e.target.closest('button') && !e.target.closest('textarea') && !e.target.closest('form')) {
+                            const card = e.target.closest('.discussion-card');
+                            const discussionId = card.getAttribute('data-id');
+                            const replyForm = document.getElementById(`reply-form-${discussionId}`);
+                            if (replyForm) {
+                                if (replyForm.style.display === 'none' || replyForm.style.display === '') {
+                                    replyForm.style.display = 'block';
+                                    card.classList.add('expanded');
+                                } else {
+                                    replyForm.style.display = 'none';
+                                    card.classList.remove('expanded');
+                                }
                             }
                         }
-                    }
-
-                    // Handle toggle icon click
-                    if (e.target.closest('.discussion-toggle')) {
-                        e.stopPropagation();
-                        const card = e.target.closest('.discussion-card');
-                        const discussionId = card.getAttribute('data-id');
-                        const replyForm = document.getElementById(`reply-form-${discussionId}`);
-                        
-                        if (replyForm) {
-                            if (replyForm.style.display === 'none' || replyForm.style.display === '') {
-                                replyForm.style.display = 'block';
-                                card.classList.add('expanded');
-                            } else {
-                                replyForm.style.display = 'none';
-                                card.classList.remove('expanded');
+                        if (e.target.closest('.discussion-toggle')) {
+                            e.stopPropagation();
+                            const card = e.target.closest('.discussion-card');
+                            const discussionId = card.getAttribute('data-id');
+                            const replyForm = document.getElementById(`reply-form-${discussionId}`);
+                            if (replyForm) {
+                                if (replyForm.style.display === 'none' || replyForm.style.display === '') {
+                                    replyForm.style.display = 'block';
+                                    card.classList.add('expanded');
+                                } else {
+                                    replyForm.style.display = 'none';
+                                    card.classList.remove('expanded');
+                                }
                             }
                         }
-                    }
-
-                    // Handle reply button
-                    if (e.target.closest('.reply-btn')) {
-                        e.stopPropagation();
-                        const btn = e.target.closest('.reply-btn');
-                        const discussionId = btn.getAttribute('data-id');
-                        const replyForm = document.getElementById(`reply-form-${discussionId}`);
-                        const discussionCard = btn.closest('.discussion-card');
-                        
-                        // Show the reply form if it's hidden
-                        if (replyForm && (replyForm.style.display === 'none' || replyForm.style.display === '')) {
-                            replyForm.style.display = 'block';
-                            discussionCard.classList.add('expanded');
+                                    if (e.target.closest('.reply-btn')) {
+                            e.stopPropagation();
+                            const btn = e.target.closest('.reply-btn');
+                            const discussionId = btn.getAttribute('data-id');
+                            const replyForm = document.getElementById(`reply-form-${discussionId}`);
+                            const discussionCard = btn.closest('.discussion-card');
+                            if (replyForm && (replyForm.style.display === 'none' || replyForm.style.display === '')) {
+                                replyForm.style.display = 'block';
+                                discussionCard.classList.add('expanded');
+                            }
+                            const textarea = document.getElementById(`replyTextarea-${discussionId}`);
+                            if (textarea) {
+                                setTimeout(() => textarea.focus(), 100);
+                            }
                         }
-                        
-                        const textarea = document.getElementById(`replyTextarea-${discussionId}`);
-                        if (textarea) {
-                            setTimeout(() => textarea.focus(), 100); // Small delay to ensure form is visible
+                        if (e.target.closest('.delete-btn')) {
+                            const btn = e.target.closest('.delete-btn');
+                            const id = btn.getAttribute('data-id');
+                            if (confirm('Are you sure you want to delete this discussion?')) {
+                                deleteDiscussion(id);
+                            }
                         }
-                    }
-
-                    // Handle delete button
-                    if (e.target.closest('.delete-btn')) {
-                        const btn = e.target.closest('.delete-btn');
-                        const id = btn.getAttribute('data-id');
-                        if (confirm('Are you sure you want to delete this discussion?')) {
-                            deleteDiscussion(id);
+                        if (e.target.closest('.delete-reply-btn')) {
+                            const btn = e.target.closest('.delete-reply-btn');
+                            const discussionId = btn.getAttribute('data-discussion-id');
+                            const replyId = btn.getAttribute('data-reply-id');
+                            if (confirm('Delete this reply?')) {
+                                deleteReply(discussionId, replyId);
+                            }
                         }
-                    }
+                    };
+                    container.addEventListener('click', handler);
+                    container._discussionHandler = handler;
 
-                    // Handle delete reply button
-                    if (e.target.closest('.delete-reply-btn')) {
-                        const btn = e.target.closest('.delete-reply-btn');
-                        const discussionId = btn.getAttribute('data-discussion-id');
-                        const replyId = btn.getAttribute('data-reply-id');
-                        if (confirm('Delete this reply?')) {
-                            deleteReply(discussionId, replyId);
+                    container.addEventListener('submit', function(e) {
+                        if (e.target.classList.contains('reply-form-element')) {
+                            e.preventDefault();
+                            const form = e.target;
+                            const discussionId = form.getAttribute('data-discussion-id');
+                            const content = form.querySelector('[name="replyContent"]').value;
+                            if (!content.trim()) {
+                                alert('Please add a reply before posting.');
+                                return;
+                            }
+                            postReply(discussionId, content);
                         }
-                    }
-                });
-
-                // Handle form submissions with event delegation
-                container.addEventListener('submit', function(e) {
-                    if (e.target.classList.contains('reply-form-element')) {
-                        e.preventDefault();
-                        const form = e.target;
-                        const discussionId = form.getAttribute('data-discussion-id');
-                        const content = form.querySelector('[name="replyContent"]').value;
-
-                        if (!content.trim()) {
-                            alert('Please add a reply before posting.');
-                            return;
-                        }
-
-                        postReply(discussionId, content);
-                    }
-                });
+                    });
+                }
             }
 
-            // Delete discussion
             function deleteDiscussion(id) {
                 fetch(`{{ url('community') }}/${id}`, {
                     method: 'DELETE',
@@ -961,7 +613,7 @@
                 .then(data => {
                     if (data.success) {
                         const activeTab = document.querySelector('.tab-btn.active');
-                        activeTab.click();
+                        if (activeTab) activeTab.click();
                     } else {
                         alert(data.message || 'Error deleting discussion.');
                     }
@@ -985,7 +637,7 @@
                 .then(data => {
                     if (data.success) {
                         const activeTab = document.querySelector('.tab-btn.active');
-                        activeTab.click();
+                        if (activeTab) activeTab.click();
                     } else {
                         alert(data.message || 'Error posting reply.');
                     }
@@ -997,9 +649,7 @@
             }
 
             function deleteReply(discussionId, replyId) {
-                const url = `{{ url('community') }}/${discussionId}/reply/${replyId}`;
-
-                fetch(url, {
+                fetch(`{{ url('community') }}/${discussionId}/reply/${replyId}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken
@@ -1009,7 +659,7 @@
                 .then(data => {
                     if (data.success) {
                         const activeTab = document.querySelector('.tab-btn.active');
-                        activeTab.click();
+                        if (activeTab) activeTab.click();
                     } else {
                         alert(data.message || 'Error deleting reply.');
                     }
@@ -1020,7 +670,6 @@
                 });
             }
 
-            // Sidebar active state
             const currentPath = window.location.pathname;
             const communityLink = document.querySelector(`a[href="${currentPath}"]`) || document.querySelector('a[href*="/community"]');
             if (communityLink) {
@@ -1029,5 +678,4 @@
             }
         })();
     </script>
-</body>
-</html>
+@endsection

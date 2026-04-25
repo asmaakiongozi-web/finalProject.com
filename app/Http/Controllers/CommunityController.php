@@ -17,6 +17,10 @@ class CommunityController extends Controller
 
     public function index()
     {
+        if (Auth::check() && Auth::user()->usertype === 'admin') {
+            return view('admin.community');
+        }
+
         return view('community');
     }
 
@@ -110,8 +114,9 @@ class CommunityController extends Controller
     public function destroy($id)
     {
         $discussion = Discussion::findOrFail($id);
+        $user = Auth::user();
 
-        if ($discussion->user_id !== Auth::id()) {
+        if ($discussion->user_id !== $user->id && $user->usertype !== 'admin') {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized',

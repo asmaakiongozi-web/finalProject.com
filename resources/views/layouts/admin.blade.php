@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="user-id" content="{{ auth()->check() ? auth()->id() : '' }}">
     <title>Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -32,9 +35,25 @@
         }
 
         .main-content {
-            margin-left: 280px;
+            position: relative;
+            left: 280px;
+            width: calc(100% - 280px);
             margin-top: 56px; /* Match navbar height */
-            padding: 0;
+            padding: 0.05rem 1.5rem;
+        }
+        .main-content .container-fluid {
+            padding-left: 0;
+            padding-right: 0;
+            margin-left: 0;
+            margin-right: 0;
+        }
+        .main-content .row {
+            margin-left: 0;
+            margin-right: 0;
+        }
+        .main-content .col-12 {
+            padding-left: 0;
+            padding-right: 0;
         }
         /* ========= GREEN THEME SIDEBAR (STANDALONE) ========= */
         .sidebar-green {
@@ -45,13 +64,19 @@
             transition: all 0.3s ease;
             box-shadow: -8px 0 20px rgba(0, 0, 0, 0.08);
             border-right: 1px solid #2a6e4f;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         .sidebar-green .sidebar-inner {
             padding: 1.8rem 1rem 2rem 1rem;
             display: flex;
             flex-direction: column;
-            height: 100%;
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         /* brand / logo area */

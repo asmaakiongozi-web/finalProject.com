@@ -1,4 +1,4 @@
-@extends(auth()->user()->usertype === 'professional' ? 'layouts.professional' : 'layouts.user')
+@extends(auth()->user()->usertype === 'admin' ? 'layouts.admin' : (auth()->user()->usertype === 'professional' ? 'layouts.professional' : 'layouts.user'))
 
 @section('content')
 <style>

@@ -14,37 +14,28 @@
         <ul class="nav-green">
             <!-- Dashboard (no dropdown, single) -->
             <li class="nav-item">
-                <a class="nav-link-custom" href="{{ route('admin.dashboard') }}">
+                <a class="nav-link-custom {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
                     <i class="fas fa-home me-2"></i> Dashboard
                 </a>
             </li>
 
-            <!-- Users (with dropdown: All Users, Roles, Permissions) -->
+            <!-- Users -->
             <li class="nav-item">
-                <div class="nav-link-custom" data-dropdown="usersDropdown">
+                <a class="nav-link-custom {{ request()->routeIs('admin.users') ? 'active' : '' }}" href="{{ route('admin.users') }}">
                     <i class="fas fa-users me-2"></i> Users
-                    <i class="fas fa-chevron-down dropdown-icon"></i>
-                </div>
-                <ul class="dropdown-menu-custom" id="usersDropdown">
-                    <li><a class="dropdown-link" href="#"><i class="fas fa-user-friends"></i> All Users</a></li>
-                    <li><a class="dropdown-link" href="#"><i class="fas fa-user-tag"></i> User Roles</a></li>
-                    <li><a class="dropdown-link" href="#"><i class="fas fa-lock"></i> Permissions</a></li>
-                    <li><a class="dropdown-link" href="#"><i class="fas fa-user-plus"></i> Add New User</a></li>
-                </ul>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link-custom {{ request()->routeIs('admin.users.create') ? 'active' : '' }}" href="{{ route('admin.users.create') }}">
+                    <i class="fas fa-user-plus me-2"></i> Add New User
+                </a>
             </li>
 
-            <!-- Community Forum with dropdown -->
+            <!-- Community Forum -->
             <li class="nav-item">
-                <div class="nav-link-custom" data-dropdown="forumDropdown">
+                <a class="nav-link-custom {{ request()->routeIs('community.*') ? 'active' : '' }}" href="{{ route('community.index') }}">
                     <i class="fas fa-comments me-2"></i> Community Forum
-                    <i class="fas fa-chevron-down dropdown-icon"></i>
-                </div>
-                <ul class="dropdown-menu-custom" id="forumDropdown">
-                    <li><a class="dropdown-link" href="{{url('community')}}"><i class="fas fa-comment-dots"></i> All Discussions</a></li>
-                    <li><a class="dropdown-link" href="#"><i class="fas fa-flag"></i> Reported Posts</a></li>
-                    <li><a class="dropdown-link" href="#"><i class="fas fa-crown"></i> Top Contributors</a></li>
-                    <li><a class="dropdown-link" href="#"><i class="fas fa-category"></i> Categories</a></li>
-                </ul>
+                </a>
             </li>
 
             <!-- Mental Health Resources (dropdown with sub-sections) -->
@@ -54,10 +45,9 @@
                     <i class="fas fa-chevron-down dropdown-icon"></i>
                 </div>
                 <ul class="dropdown-menu-custom" id="resourcesDropdown">
-                    <li><a class="dropdown-link" href="#"><i class="fas fa-file-alt"></i> Articles & Guides</a></li>
-                    <li><a class="dropdown-link" href="#"><i class="fas fa-video"></i> Video Library</a></li>
-                    <li><a class="dropdown-link" href="#"><i class="fas fa-phone-alt"></i> Crisis Helplines</a></li>
-                    <li><a class="dropdown-link" href="#"><i class="fas fa-calendar-check"></i> Wellness Events</a></li>
+                    <li><a class="dropdown-link" href="{{ route('resources.create') }}"><i class="fas fa-plus-circle"></i> Add Resource</a></li>
+                    <li><a class="dropdown-link" href="{{ route('resources.manage') }}"><i class="fas fa-cog"></i> Manage Resources</a></li>
+                    <li><a class="dropdown-link" href="{{ route('resources.index') }}"><i class="fas fa-eye"></i> View Resources</a></li>
                 </ul>
             </li>
 

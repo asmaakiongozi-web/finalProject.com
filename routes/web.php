@@ -57,12 +57,16 @@ require __DIR__.'/auth.php';
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [HomeController::class, 'adminDashboard'])->name('dashboard');
     Route::get('/users', [HomeController::class, 'manageUsers'])->name('users');
+    Route::get('/users/create', [HomeController::class, 'createUser'])->name('users.create');
+    Route::post('/users', [HomeController::class, 'storeUser'])->name('users.store');
+    Route::put('/users/{user}', [HomeController::class, 'updateUserRole'])->name('users.update');
+    Route::delete('/users/{user}', [HomeController::class, 'destroyUser'])->name('users.destroy');
     Route::get('/books', [HomeController::class, 'manageBooks'])->name('books');
     Route::get('/settings', fn () => view('admin.settings'))->name('settings');
     Route::get('/profile', fn () => view('admin.profile'))->name('profile');
     Route::get('/notifications', fn () => view('admin.notifications'))->name('notifications');
     Route::get('/profile/edit', fn () => view('admin.profile-edit'))->name('profile.edit');
-    });
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -80,22 +84,39 @@ Route::middleware(['auth', 'user'])->prefix('user')->name('user.')->group(functi
 | Resource Library Routes
 |--------------------------------------------------------------------------
 */
-// Public resource viewing (authenticated users)
-Route::middleware(['auth', 'verified'])->prefix('resources')->name('resources.')->group(function () {
-    Route::get('/', [ResourceController::class, 'index'])->name('index');
-    Route::get('/category/{category}', [ResourceController::class, 'category'])->name('category');
-    Route::get('/type/{type}', [ResourceController::class, 'type'])->name('type');
-    Route::get('/{resource}', [ResourceController::class, 'show'])->name('show');
-});
+/*
+|--------------------------------------------------------------------------
+| Resource Management (IMPORTANT: iwe juu 🔥)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])
+    ->prefix('resources/manage')
+    ->name('resources.')
+    ->group(function () {
+        Route::get('/', [ResourceController::class, 'manage'])->name('manage');
+        Route::get('/create', [ResourceController::class, 'create'])->name('create');
+        Route::post('/store', [ResourceController::class, 'store'])->name('store');
+        Route::get('/{resource}/edit', [ResourceController::class, 'edit'])->name('edit');
+        Route::put('/{resource}', [ResourceController::class, 'update'])->name('update');
+        Route::delete('/{resource}', [ResourceController::class, 'destroy'])->name('destroy');
+    });
 
-// Resource management (professionals and admins only)
-Route::middleware(['auth', 'verified'])->prefix('resources/manage')->name('resources.')->group(function () {
-    Route::get('/create', [ResourceController::class, 'create'])->name('create');
-    Route::post('/store', [ResourceController::class, 'store'])->name('store');
-    Route::get('/', [ResourceController::class, 'manage'])->name('manage');
-    Route::delete('/{resource}', [ResourceController::class, 'destroy'])->name('destroy');
-});
+/*
+|--------------------------------------------------------------------------
+| Resource Library (iwe chini 🔻)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])
+    ->prefix('resources')
+    ->name('resources.')
+    ->group(function () {
+        Route::get('/', [ResourceController::class, 'index'])->name('index');
+        Route::get('/category/{category}', [ResourceController::class, 'category'])->name('category');
+        Route::get('/type/{type}', [ResourceController::class, 'type'])->name('type');
 
+        // 🔥 HII IWE MWISHO KABISA
+        Route::get('/{resource}', [ResourceController::class, 'show'])->name('show');
+    });
 /*
 |--------------------------------------------------------------------------
 | Professional Routes

@@ -1,4 +1,4 @@
-@extends(auth()->user()->usertype === 'professional' ? 'layouts.professional' : 'layouts.user')
+@extends(auth()->user()->usertype === 'admin' ? 'layouts.admin' : (auth()->user()->usertype === 'professional' ? 'layouts.professional' : 'layouts.user'))
 
 @section('content')
 <style>
@@ -135,31 +135,7 @@
     </div>
 </div>
 
-@if(auth()->user()->usertype !== 'professional')
-<div class="category-filter">
-    <h6 class="mb-3" style="color: #0f2c24; font-weight: 600;">Filter by Category</h6>
-    <div class="d-flex flex-wrap gap-2">
-        <a href="{{ route('resources.index') }}" class="category-btn {{ is_null($category) ? 'active' : '' }}">All Resources</a>
-        <a href="{{ route('resources.category', 'general') }}" class="category-btn {{ ($category ?? '') === 'general' ? 'active' : '' }}">General</a>
-        <a href="{{ route('resources.category', 'anxiety') }}" class="category-btn {{ ($category ?? '') === 'anxiety' ? 'active' : '' }}">Anxiety</a>
-        <a href="{{ route('resources.category', 'depression') }}" class="category-btn {{ ($category ?? '') === 'depression' ? 'active' : '' }}">Depression</a>
-        <a href="{{ route('resources.category', 'stress') }}" class="category-btn {{ ($category ?? '') === 'stress' ? 'active' : '' }}">Stress</a>
-        <a href="{{ route('resources.category', 'relationships') }}" class="category-btn {{ ($category ?? '') === 'relationships' ? 'active' : '' }}">Relationships</a>
-        <a href="{{ route('resources.category', 'self-care') }}" class="category-btn {{ ($category ?? '') === 'self-care' ? 'active' : '' }}">Self Care</a>
-        <a href="{{ route('resources.category', 'coping-skills') }}" class="category-btn {{ ($category ?? '') === 'coping-skills' ? 'active' : '' }}">Coping Skills</a>
-    </div>
-</div>
 
-<div class="category-filter mt-4">
-    <h6 class="mb-3" style="color: #0f2c24; font-weight: 600;">Filter by Type</h6>
-    <div class="d-flex flex-wrap gap-2">
-        <a href="{{ route('resources.index') }}" class="category-btn {{ is_null($type ?? null) ? 'active' : '' }}">All Types</a>
-        <a href="{{ route('resources.type', 'article') }}" class="category-btn {{ ($type ?? '') === 'article' ? 'active' : '' }}">Articles</a>
-        <a href="{{ route('resources.type', 'audio') }}" class="category-btn {{ ($type ?? '') === 'audio' ? 'active' : '' }}">Audio Resources</a>
-        <a href="{{ route('resources.type', 'video') }}" class="category-btn {{ ($type ?? '') === 'video' ? 'active' : '' }}">Video Resources</a>
-    </div>
-</div>
-@endif
 
 <div class="row">
     @forelse($resources as $resource)

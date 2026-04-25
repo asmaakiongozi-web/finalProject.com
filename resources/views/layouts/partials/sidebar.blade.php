@@ -52,7 +52,7 @@
                     <i class="fas fa-chevron-down dropdown-icon"></i>
                 </div>
                 <ul class="dropdown-menu-custom" id="resourcesDropdown">
-                    <li><a class="dropdown-link" href="{{ route('resources.category', 'general') }}"><i class="fas fa-newspaper"></i> Articles</a></li>
+                    <li><a class="dropdown-link" href="{{ route('resources.index', 'general') }}"><i class="fas fa-newspaper"></i> Articles</a></li>
                     <li><a class="dropdown-link" href="{{ route('resources.type', 'audio') }}"><i class="fas fa-headphones"></i> Audio Resources</a></li>
                     <li><a class="dropdown-link" href="{{ route('resources.type', 'video') }}"><i class="fas fa-video"></i> Video Resources</a></li>
                     @if(auth()->user()->usertype === 'professional' || auth()->user()->usertype === 'admin')

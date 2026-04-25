@@ -128,23 +128,91 @@ class ResourceController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $resources = Resource::where('posted_by', $user->id)
-            ->latest()
-            ->paginate(10);
+        if ($user->usertype === 'admin') {
+            $resources = Resource::with('user')
+                ->latest()
+                ->paginate(10);
+        } else {
+            $resources = Resource::with('user')
+                ->where('posted_by', $user->id)
+                ->latest()
+                ->paginate(10);
+        }
 
         return view('resources.manage', compact('resources'));
     }
 
     /**
-     * Delete a resource (only by the poster).
+     * Show the form for editing a resource.
      */
-    public function destroy(Resource $resource)
+    public function edit(Resource $resource)
     {
-        if ($resource->posted_by !== Auth::id()) {
+        $user = Auth::user();
+        if (!in_array($user->usertype, ['professional', 'admin'])) {
             abort(403, 'Unauthorized');
         }
 
-        // Delete file if exists
+        if ($user->usertype === 'professional' && $resource->posted_by !== $user->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        return view('resources.edit', compact('resource'));
+    }
+
+    /**
+     * Update an existing resource.
+     */
+    public function update(Request $request, Resource $resource)
+    {
+        $user = Auth::user();
+        if (!in_array($user->usertype, ['professional', 'admin'])) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($user->usertype === 'professional' && $resource->posted_by !== $user->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'content' => 'nullable|string',
+            'category' => 'required|string|in:general,anxiety,depression,stress,relationships,self-care,coping-skills',
+            'type' => 'required|string|in:article,video,audio,pdf,link',
+            'file' => 'nullable|file|mimes:pdf,doc,docx|max:51200',
+        ]);
+
+        if ($request->hasFile('file')) {
+            if ($resource->file_path) {
+                Storage::disk('public')->delete($resource->file_path);
+            }
+            $validated['file_path'] = $request->file('file')->store('resources', 'public');
+        } else {
+            $validated['file_path'] = $resource->file_path;
+        }
+
+        $resource->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'content' => $validated['content'],
+            'category' => $validated['category'],
+            'type' => $validated['type'],
+            'file_path' => $validated['file_path'],
+        ]);
+
+        return redirect()->route('resources.manage')->with('success', 'Resource updated successfully!');
+    }
+
+    /**
+     * Delete a resource (only by the poster or admin).
+     */
+    public function destroy(Resource $resource)
+    {
+        $user = Auth::user();
+        if ($user->usertype !== 'admin' && $resource->posted_by !== $user->id) {
+            abort(403, 'Unauthorized');
+        }
+
         if ($resource->file_path) {
             Storage::disk('public')->delete($resource->file_path);
         }
