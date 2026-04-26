@@ -43,15 +43,18 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link-custom" href="#">
-                    <i class="fas fa-sliders-h me-2"></i> Settings
-                </a>
+                <div class="nav-link-custom" data-dropdown="settingsDropdown">
+                    <i class="fas fa-cog me-2"></i> Settings
+                    <i class="fas fa-chevron-down dropdown-icon"></i>
+                </div>
+                <ul class="dropdown-menu-custom" id="settingsDropdown">
+                    <li><a class="dropdown-link" href="{{ route('admin.settings.appearance') }}"><i class="fas fa-palette"></i> Appearance</a></li>
+                    <li><a class="dropdown-link" href="#"><i class="fas fa-bell"></i> Notifications</a></li>
+                    <li><a class="dropdown-link" href="{{ route('admin.settings.account') }}"><i class="fas fa-shield-alt"></i> Privacy</a></li>
+                </ul>
             </li>
         </ul>
 
-        <!-- footer info: professional meta -->
-        <div class="sidebar-footer">
-            <i class="fas fa-shield-heart me-1"></i> HIPAA Ready · v3.2
-        </div>
+        
     </div>
 </aside>

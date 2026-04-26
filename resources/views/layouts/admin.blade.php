@@ -10,12 +10,41 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    @php
+        $adminTheme = session('admin_appearance_theme', 'green');
+        $adminSidebarStyle = session('admin_sidebar_style', 'gradient');
+        $adminSidebarColor = session('admin_sidebar_color', '#0f4c3a');
+        $adminNavbarColor = session('admin_navbar_color', '#198754');
+        $adminAccentColor = session('admin_accent_color', '#2c8c6b');
+        $bodyBg = $adminTheme === 'dark' ? '#0f172a' : ($adminTheme === 'light' ? '#f8fafc' : '#edf9ef');
+        $bodyText = $adminTheme === 'dark' ? '#e2e8f0' : '#111827';
+        $sidebarBackground = $adminSidebarStyle === 'solid'
+            ? $adminSidebarColor
+            : ($adminSidebarStyle === 'soft'
+                ? 'rgba(15,76,58,0.86)'
+                : 'linear-gradient(145deg, '.$adminSidebarColor.' 0%, rgba(15,76,58,0.9) 100%)');
+        $adminStyles = "body{background:{$bodyBg};color:{$bodyText};}" .
+            ".navbar-fixed{background:{$adminNavbarColor} !important;}" .
+            ".sidebar-green{background:{$sidebarBackground};border-right-color:rgba(255,255,255,0.14);}" .
+            ".nav-green .nav-link-custom.active{background:{$adminAccentColor};color:white;}";
+    @endphp
     <style>
+        :root {
+            --admin-body-bg: #edf9ef;
+            --admin-body-color: #111827;
+            --admin-sidebar-bg: #0f4c3a;
+            --admin-sidebar-border: rgba(255,255,255,0.14);
+            --admin-navbar-bg: #198754;
+            --admin-accent: #2c8c6b;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
             margin: 0;
             padding: 0;
+            background: var(--admin-body-bg);
+            color: var(--admin-body-color);
         }
 
         .sidebar-fixed {
@@ -32,6 +61,7 @@
             left: 280px;
             right: 0;
             z-index: 1030;
+            background: var(--admin-navbar-bg) !important;
         }
 
         .main-content {
@@ -57,13 +87,12 @@
         }
         /* ========= GREEN THEME SIDEBAR (STANDALONE) ========= */
         .sidebar-green {
-            background: #0a3b2f;
-            background: linear-gradient(145deg, #0f4c3a 0%, #0a3b2f 100%);
+            background: var(--admin-sidebar-bg);
             width: 280px;
             min-height: 100vh;
             transition: all 0.3s ease;
             box-shadow: -8px 0 20px rgba(0, 0, 0, 0.08);
-            border-right: 1px solid #2a6e4f;
+            border-right: 1px solid var(--admin-sidebar-border);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -161,7 +190,7 @@
         }
 
         .nav-green .nav-link-custom.active {
-            background: #2c8c6b;
+            background: var(--admin-accent);
             color: white;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
@@ -226,6 +255,14 @@
             color: #9fcbbc;
         }
     </style>
+    <script>
+        document.documentElement.style.colorScheme = "{{ $adminTheme === 'light' ? 'light' : 'dark' }}";
+        document.documentElement.style.setProperty('--admin-body-bg', "{{ $bodyBg }}");
+        document.documentElement.style.setProperty('--admin-body-color', "{{ $bodyText }}");
+        document.documentElement.style.setProperty('--admin-sidebar-bg', "{{ $sidebarBackground }}");
+        document.documentElement.style.setProperty('--admin-navbar-bg', "{{ $adminNavbarColor }}");
+        document.documentElement.style.setProperty('--admin-accent', "{{ $adminAccentColor }}");
+    </script>
     @stack('styles')
 </head>
 <body>

@@ -7,6 +7,7 @@ use App\Http\Controllers\DiaryController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResourceController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
 // Public route
@@ -62,7 +63,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::put('/users/{user}', [HomeController::class, 'updateUserRole'])->name('users.update');
     Route::delete('/users/{user}', [HomeController::class, 'destroyUser'])->name('users.destroy');
     Route::get('/books', [HomeController::class, 'manageBooks'])->name('books');
-    Route::get('/settings', fn () => view('admin.settings'))->name('settings');
+    Route::get('/settings', fn () => redirect()->route('admin.settings.appearance'))->name('settings');
+    Route::get('/settings/appearance', [SettingController::class, 'appearance'])->name('settings.appearance');
+    Route::get('/settings/account', [SettingController::class, 'account'])->name('settings.account');
+
+    Route::post('/settings/appearance', [SettingController::class, 'saveAppearance'])->name('settings.appearance.save');
+    Route::post('/settings/account', [SettingController::class, 'saveAccount'])->name('settings.account.save');
     Route::get('/profile', fn () => view('admin.profile'))->name('profile');
     Route::get('/notifications', fn () => view('admin.notifications'))->name('notifications');
     Route::get('/profile/edit', fn () => view('admin.profile-edit'))->name('profile.edit');
@@ -127,4 +133,5 @@ Route::middleware(['auth', 'professional'])->prefix('professional')->name('profe
     Route::get('/messages', [ProfessionalController::class, 'messages'])->name('messages');
     Route::get('/clients', [ProfessionalController::class, 'clients'])->name('clients'); // example professional route
     // Add more professional routes here
+     
 });

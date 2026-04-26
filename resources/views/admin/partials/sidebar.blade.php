@@ -75,16 +75,16 @@
                     <i class="fas fa-chevron-down dropdown-icon"></i>
                 </div>
                 <ul class="dropdown-menu-custom" id="settingsDropdown">
-                    <li><a class="dropdown-link" href="#"><i class="fas fa-palette"></i> Appearance</a></li>
+                    <li><a class="dropdown-link" href="{{ route('admin.settings.appearance') }}"><i class="fas fa-palette"></i> Appearance</a></li>
                     <li><a class="dropdown-link" href="#"><i class="fas fa-bell"></i> Notifications</a></li>
-                    <li><a class="dropdown-link" href="#"><i class="fas fa-shield-alt"></i> Privacy</a></li>
+                    <li><a class="dropdown-link" href="{{ route('admin.settings.account') }}"><i class="fas fa-shield-alt"></i> Privacy</a></li>
                 </ul>
             </li>
         </ul>
 
         <!-- small footer meta -->
         <div class="sidebar-footer">
-            <i class="fas fa-seedling me-1"></i> GreenWellness v2.0
+            <i class="fas fa-seedling me-1"></i>
         </div>
     </div>
 </aside>
